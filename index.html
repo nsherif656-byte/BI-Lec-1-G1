@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Intelligence Quest 📊</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --error: #ef4444;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        .game-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 950px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            padding: 25px;
+            border: 2px solid #334155;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-badge {
+            background: #334155;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--accent);
+        }
+
+        .level-container {
+            display: none;
+        }
+
+        .level-container.active {
+            display: block;
+        }
+
+        .instructions {
+            background: #0f172a;
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .pipeline-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .slot {
+            width: 130px;
+            height: 60px;
+            border: 2px dashed #475569;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #64748b;
+            background: rgba(15, 23, 42, 0.5);
+            position: relative;
+        }
+
+        .slot.filled {
+            border-style: solid;
+            border-color: var(--primary);
+            color: #fff;
+            background: #1e293b;
+        }
+
+        .drag-pool {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .draggable {
+            background: var(--primary);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .draggable:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .draggable.selected {
+            outline: 3px solid var(--accent);
+        }
+
+        .matching-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .match-card {
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .match-card h4 {
+            margin: 0 0 10px 0;
+            color: #93c5fd;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            outline: none;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn-back {
+            background: #334155;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .feedback-box {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback-box.correct {
+            background: rgba(16, 185, 129, 0.2);
+            color: #a7f3d0;
+            border: 1px solid var(--success);
+        }
+
+        .feedback-box.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border: 1px solid var(--error);
+        }
+
+        .category-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .category-box {
+            background: #0f172a;
+            border: 2px dashed #475569;
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 150px;
+        }
+
+        .category-box h4 {
+            text-align: center;
+            margin-top: 0;
+            color: #93c5fd;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.95);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 30px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .matching-grid, .category-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-card">
+    <div class="header">
+        <div class="title">📊 Business Intelligence Quest</div>
+        <div class="stat-badge" id="scoreDisplay">Score: 0 / 100</div>
+    </div>
+
+    <!-- LEVEL 1: BI Pipeline Sequence -->
+    <div class="level-container active" id="level1">
+        <div class="instructions">
+            📌 <b>Level 1: The BI Pipeline</b><br>
+            Click on items from the pool below in the exact order of the Business Intelligence pipeline![cite: 6]
+        </div>
+        
+        <div class="pipeline-slots" id="pipelineSlots">
+            <div class="slot" data-index="0">Step 1</div>
+            <div class="slot" data-index="1">Step 2</div>
+            <div class="slot" data-index="2">Step 3</div>
+            <div class="slot" data-index="3">Step 4</div>
+            <div class="slot" data-index="4">Step 5</div>
+            <div class="slot" data-index="5">Step 6</div>
+        </div>
+
+        <div class="drag-pool" id="level1Pool">
+            <div class="draggable" onclick="clickItem(this, 'Decision')">Decision</div>
+            <div class="draggable" onclick="clickItem(this, 'Data')">Data</div>
+            <div class="draggable" onclick="clickItem(this, 'Result')">Result</div>
+            <div class="draggable" onclick="clickItem(this, 'Insight')">Insight</div>
+            <div class="draggable" onclick="clickItem(this, 'Information')">Information</div>
+            <div class="draggable" onclick="clickItem(this, 'Action')">Action</div>
+        </div>
+
+        <button class="btn-action" onclick="checkLevel1()">Verify Pipeline Order ➔</button>
+        <button class="btn-back" style="margin-left: 10px;" onclick="resetLevel1()">Reset</button>
+        <div class="feedback-box" id="level1Feedback"></div>
+    </div>
+
+    <!-- LEVEL 2: The Four Questions of BI -->
+    <div class="level-container" id="level2">
+        <button class="btn-back" onclick="goToLevel(1)">⬅ Back to Level 1</button>
+        <div class="instructions">
+            📌 <b>Level 2: The Four Questions of Business Intelligence</b><br>
+            Match each analytics level with its core question and practical example![cite: 6]
+        </div>
+
+        <div class="matching-grid">
+            <div class="match-card">
+                <h4>Level 1 — Descriptive</h4>
+                <select id="q_descriptive">
+                    <option value="">-- Select Question --</option>
+                    <option value="why">Why did it happen?</option>
+                    <option value="what_happened">What happened?</option>
+                    <option value="next">What might happen next?</option>
+                    <option value="should_do">What should we do?</option>
+                </select>
+                <p style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">Example: "Sales decreased by 8% in March."</p>
+            </div>
+
+            <div class="match-card">
+                <h4>Level 2 — Diagnostic</h4>
+                <select id="q_diagnostic">
+                    <option value="">-- Select Question --</option>
+                    <option value="why">Why did it happen?</option>
+                    <option value="what_happened">What happened?</option>
+                    <option value="next">What might happen next?</option>
+                    <option value="should_do">What should we do?</option>
+                </select>
+                <p style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">Example: "The decrease was concentrated in two branches."</p>
+            </div>
+
+            <div class="match-card">
+                <h4>Level 3 — Predictive</h4>
+                <select id="q_predictive">
+                    <option value="">-- Select Question --</option>
+                    <option value="why">Why did it happen?</option>
+                    <option value="what_happened">What happened?</option>
+                    <option value="next">What might happen next?</option>
+                    <option value="should_do">What should we do?</option>
+                </select>
+                <p style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">Example: "If current trend continues, April sales may decrease further."</p>
+            </div>
+
+            <div class="match-card">
+                <h4>Level 4 — Prescriptive</h4>
+                <select id="q_prescriptive">
+                    <option value="">-- Select Question --</option>
+                    <option value="why">Why did it happen?</option>
+                    <option value="what_happened">What happened?</option>
+                    <option value="next">What might happen next?</option>
+                    <option value="should_do">What should we do?</option>
+                </select>
+                <p style="font-size: 13px; color: #cbd5e1; margin-top: 8px;">Example: "Increase promotions for the two underperforming branches."</p>
+            </div>
+        </div>
+
+        <button class="btn-action" onclick="checkLevel2()">Verify BI Levels ➔</button>
+        <div class="feedback-box" id="level2Feedback"></div>
+    </div>
+
+    <!-- LEVEL 3: Data vs. Information -->
+    <div class="level-container" id="level3">
+        <button class="btn-back" onclick="goToLevel(2)">⬅ Back to Level 2</button>
+        <div class="instructions">
+            📌 <b>Level 3: From Data to Information Transformation</b><br>
+            Categorize each item correctly as Raw Data, Process, or Meaningful Information![cite: 7]
+        </div>
+
+        <div class="matching-grid">
+            <div class="match-card">
+                <h4>"48, Tuesday, SKU-30291"</h4>
+                <select id="cat_1">
+                    <option value="">-- Select Category --</option>
+                    <option value="data">Data (Raw, unorganized facts)</option>
+                    <option value="process">Process (Sorting, grouping, calculating)</option>
+                    <option value="info">Information (Organized, structured, meaningful)</option>
+                </select>
+            </div>
+
+            <div class="match-card">
+                <h4>"Group by product & date"</h4>
+                <select id="cat_2">
+                    <option value="">-- Select Category --</option>
+                    <option value="data">Data (Raw, unorganized facts)</option>
+                    <option value="process">Process (Sorting, grouping, calculating)</option>
+                    <option value="info">Information (Organized, structured, meaningful)</option>
+                </select>
+            </div>
+
+            <div class="match-card">
+                <h4>"48 units of SKU-30291 sold on Tuesday"</h4>
+                <select id="cat_3">
+                    <option value="">-- Select Category --</option>
+                    <option value="data">Data (Raw, unorganized facts)</option>
+                    <option value="process">Process (Sorting, grouping, calculating)</option>
+                    <option value="info">Information (Organized, structured, meaningful)</option>
+                </select>
+            </div>
+
+            <div class="match-card">
+                <h4>Is a Dashboard the only output of BI?</h4>
+                <select id="cat_4">
+                    <option value="">-- Select Answer --</option>
+                    <option value="yes">Yes, BI is simply a dashboard</option>
+                    <option value="no">No, a dashboard is just ONE possible output</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-action" onclick="checkLevel3()">Complete BI Quest 🏆</button>
+        <div class="feedback-box" id="level3Feedback"></div>
+    </div>
+
+    <!-- Final Overlay -->
+    <div class="overlay" id="finalOverlay" style="display: none;">
+        <h1 style="font-size: 32px; color: #10b981; margin-bottom: 10px;">🎉 Victory!</h1>
+        <p style="font-size: 18px; color: #cbd5e1; max-width: 550px; line-height: 1.6;">
+            Congratulations! You mastered Business Intelligence concepts from raw data processing to predictive & prescriptive analytics![cite: 6, 7]
+        </p>
+        <div style="font-size: 24px; font-weight: bold; color: var(--accent); margin: 20px 0;" id="finalScore">Final Score: 100 / 100</div>
+        <button class="btn-action" onclick="location.reload()">Play Again 🔄</button>
+    </div>
+</div>
+
+<script>
+    let currentScore = 0;
+    let selectedPipeline = [];
+    const correctPipeline = ['Data', 'Information', 'Insight', 'Decision', 'Action', 'Result'];
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.3);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
+        }
+    }
+
+    function goToLevel(lvl) {
+        document.querySelectorAll('.level-container').forEach(el => el.classList.remove('active'));
+        document.getElementById(`level${lvl}`).classList.add('active');
+    }
+
+    function clickItem(el, name) {
+        if (selectedPipeline.length < 6 && !el.classList.contains('used')) {
+            const slot = document.querySelector(`.slot[data-index="${selectedPipeline.length}"]`);
+            slot.textContent = name;
+            slot.classList.add('filled');
+            el.style.opacity = '0.3';
+            el.classList.add('used');
+            selectedPipeline.push(name);
+        }
+    }
+
+    function resetLevel1() {
+        selectedPipeline = [];
+        document.querySelectorAll('.slot').forEach((slot, idx) => {
+            slot.textContent = `Step ${idx + 1}`;
+            slot.classList.remove('filled');
+        });
+        document.querySelectorAll('.draggable').forEach(el => {
+            el.style.opacity = '1';
+            el.classList.remove('used');
+        });
+    }
+
+    function checkLevel1() {
+        const fb = document.getElementById('level1Feedback');
+        fb.style.display = 'block';
+
+        if (JSON.stringify(selectedPipeline) === JSON.stringify(correctPipeline)) {
+            playSound('correct');
+            currentScore = 30;
+            document.getElementById('scoreDisplay').textContent = `Score: ${currentScore} / 100`;
+            fb.className = 'feedback-box correct';
+            fb.innerHTML = '✅ Excellent! Correct BI Pipeline: Data ➔ Information ➔ Insight ➔ Decision ➔ Action ➔ Result.';
+            setTimeout(() => goToLevel(2), 1200);
+        } else {
+            playSound('wrong');
+            fb.className = 'feedback-box incorrect';
+            fb.innerHTML = '❌ Incorrect order. Remember the flow from raw Data to final Result!';
+        }
+    }
+
+    function checkLevel2() {
+        const desc = document.getElementById('q_descriptive').value;
+        const diag = document.getElementById('q_diagnostic').value;
+        const pred = document.getElementById('q_predictive').value;
+        const pres = document.getElementById('q_prescriptive').value;
+        const fb = document.getElementById('level2Feedback');
+        fb.style.display = 'block';
+
+        if (desc === 'what_happened' && diag === 'why' && pred === 'next' && pres === 'should_do') {
+            playSound('correct');
+            currentScore = 65;
+            document.getElementById('scoreDisplay').textContent = `Score: ${currentScore} / 100`;
+            fb.className = 'feedback-box correct';
+            fb.innerHTML = '✅ Perfect! You matched all four questions of BI analysis correctly.';
+            setTimeout(() => goToLevel(3), 1200);
+        } else {
+            playSound('wrong');
+            fb.className = 'feedback-box incorrect';
+            fb.innerHTML = '❌ Some questions are mismatched. Review Descriptive (What happened?), Diagnostic (Why?), Predictive (What next?), Prescriptive (What to do?).';
+        }
+    }
+
+    function checkLevel3() {
+        const c1 = document.getElementById('cat_1').value;
+        const c2 = document.getElementById('cat_2').value;
+        const c3 = document.getElementById('cat_3').value;
+        const c4 = document.getElementById('cat_4').value;
+        const fb = document.getElementById('level3Feedback');
+        fb.style.display = 'block';
+
+        if (c1 === 'data' && c2 === 'process' && c3 === 'info' && c4 === 'no') {
+            playSound('correct');
+            currentScore = 100;
+            document.getElementById('scoreDisplay').textContent = `Score: ${currentScore} / 100`;
+            fb.className = 'feedback-box correct';
+            fb.innerHTML = '✅ Fantastic work! You have completed the BI Quest!';
+            setTimeout(() => {
+                document.getElementById('finalOverlay').style.display = 'flex';
+                document.getElementById('finalScore').textContent = `Final Score: ${currentScore} / 100`;
+            }, 1200);
+        } else {
+            playSound('wrong');
+            fb.className = 'feedback-box incorrect';
+            fb.innerHTML = '❌ Incorrect selections. Raw facts are Data, grouping/sorting is Process, and structured context is Information.';
+        }
+    }
+</script>
+
+</body>
+</html>
